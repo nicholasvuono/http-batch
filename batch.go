@@ -7,6 +7,8 @@ import (
 	"io/ioutil"
 	"net/http"
 	"sort"
+
+	"github.com/logjammdev/utils"
 )
 
 //Request holds information to create a new http request.
@@ -94,7 +96,7 @@ func (b *batch) Send() []formattedResponse {
 		go func(i int, req *http.Request) {
 			semaphoreChan <- struct{}{}
 			res, err := client.Do(req)
-			explain(err)
+			utils.Explain(err)
 			response := &response{i, *res, err}
 			responsesChan <- response
 			<-semaphoreChan
@@ -123,7 +125,7 @@ func format(responses []response) []formattedResponse {
 	formattedResponses := []formattedResponse{}
 	for _, res := range responses {
 		body, err := ioutil.ReadAll(res.Response.Body)
-		explain(err)
+		utils.Explain(err)
 		formattedResponse := formattedResponse{
 			Status:        res.Response.Status,
 			Header:        res.Response.Header,
